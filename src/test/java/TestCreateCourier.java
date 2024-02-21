@@ -17,7 +17,7 @@ import io.qameta.allure.Step;
 import static io.restassured.RestAssured.*;
 
 public class TestCreateCourier {
-    // Данный класс содержит позитивные и негативные проверки создания курьера
+    // Данный класс содержит позитивные и негативные проверки эндпойнта POST /api/v1/courier (создание курьера)
     Courier courier;
     int courierId;
 
@@ -41,7 +41,7 @@ public class TestCreateCourier {
     @Test
     @DisplayName("Test 2 identical courier")
     @Description("Test that 2 identical couriers can not be created")
-    public void canNotCreateTwoIdenticalCouriers() {
+    public void testCanNotCreateTwoIdenticalCouriers() {
         Response responseCreate = createCourier();
         responseCreate.then().assertThat()
                 .statusCode(201)
@@ -58,7 +58,7 @@ public class TestCreateCourier {
     @Test
     @DisplayName("Test 2 identical logins")
     @Description("Test that 2 couriers with identical logins can not be created")
-    public void canNotCreateTwoCouriersWithIdenticalLogins() {
+    public void testCanNotCreateTwoCouriersWithIdenticalLogins() {
         Response responseCreate = createCourier();
         responseCreate.then().assertThat()
                 .statusCode(201)
@@ -80,7 +80,7 @@ public class TestCreateCourier {
     @Test
     @DisplayName("Cannot create courier without login")
     @Description("Courier without login can't be created ")
-    public void canNotCreateCourierWithoutLogin() {
+    public void testCanNotCreateCourierWithoutLogin() {
 
         String loginKeeper = courier.getLogin();
         courier.setLogin("");
@@ -96,7 +96,7 @@ public class TestCreateCourier {
     @Test
     @DisplayName("Cannot create courier without password")
     @Description("Courier without password can't be created ")
-    public void canNotCreateCourierWithoutPassword() {
+    public void testCanNotCreateCourierWithoutPassword() {
 
         String pwdKeeper = courier.getPassword();
         courier.setPassword("");
