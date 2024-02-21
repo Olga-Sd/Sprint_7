@@ -109,7 +109,7 @@ public class TestCreateCourier {
         courier.setLogin(pwdKeeper);
     }
     @After
-    @Description()
+    @Description("Deletion of a courier if exists")
     public void deleteTestCourierIfExist() {
         if (courier.isInApp()) {
             loginCourier();
@@ -125,7 +125,6 @@ public class TestCreateCourier {
                 .body(courier.getNewCourierRequestBody())
                 .when()
                 .post(courier.getNewCourierAPIPath());
-        //System.out.println(responseCreate.body().prettyPrint());
         if (responseCreate.getBody().asString().contains("ok")) {
             courier.setInApp(true);
         }

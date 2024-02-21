@@ -15,6 +15,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 
 import static io.restassured.RestAssured.*;
+
 public class TestLoginCourier {
     // Данный класс содержит позитивные и негативные проверки эндпойнта POST /api/v1/courier/login (логин курьера в системе)
     Courier courier;
@@ -38,25 +39,25 @@ public class TestLoginCourier {
                 .body("id", notNullValue());
     }
 
-@Test
-@DisplayName("Courier cannot get in app without Login")
-@Description("Courier cannot get in app without Login. He gets 400 Bad request")
-public void testCannotGetInAppWithoutLogin(){
-    createCourier();
-    String loginKeeper = courier.getLogin();
-    courier.setLogin("");
-    Response responseLogin = loginCourier();
-    responseLogin.then().assertThat()
-            .statusCode(400)
-            .and()
-            .body("message",   equalTo("Недостаточно данных для входа"));
-    courier.setLogin(loginKeeper);
-}
+    @Test
+    @DisplayName("Courier cannot get in app without Login")
+    @Description("Courier cannot get in app without Login. He gets 400 Bad request")
+    public void testCannotGetInAppWithoutLogin() {
+        createCourier();
+        String loginKeeper = courier.getLogin();
+        courier.setLogin("");
+        Response responseLogin = loginCourier();
+        responseLogin.then().assertThat()
+                .statusCode(400)
+                .and()
+                .body("message", equalTo("Недостаточно данных для входа"));
+        courier.setLogin(loginKeeper);
+    }
 
     @Test
     @DisplayName("Courier cannot get in app without a Password")
     @Description("Courier cannot get in app without a Password. He gets 400 Bad request")
-    public void testCannotGetInAppWithoutPassword(){
+    public void testCannotGetInAppWithoutPassword() {
         createCourier();
         String pwdKeeper = courier.getPassword();
         courier.setPassword("");
@@ -64,14 +65,14 @@ public void testCannotGetInAppWithoutLogin(){
         responseLogin.then().assertThat()
                 .statusCode(400)
                 .and()
-                .body("message",   equalTo("Недостаточно данных для входа"));
+                .body("message", equalTo("Недостаточно данных для входа"));
         courier.setPassword(pwdKeeper);
     }
 
     @Test
     @DisplayName("Courier cannot get in app with wrong Login")
     @Description("Courier cannot get in app with wrong Login. He gets 404 Not found")
-    public void testCannotGetInAppWithWrongLogin(){
+    public void testCannotGetInAppWithWrongLogin() {
         createCourier();
         String loginKeeper = courier.getLogin();
         courier.setLogin("WrongLogin");
@@ -79,14 +80,14 @@ public void testCannotGetInAppWithoutLogin(){
         responseLogin.then().assertThat()
                 .statusCode(404)
                 .and()
-                .body("message",   equalTo("Учетная запись не найдена"));
+                .body("message", equalTo("Учетная запись не найдена"));
         courier.setLogin(loginKeeper);
     }
 
     @Test
     @DisplayName("Courier cannot get in app with a wrong Password")
     @Description("Courier cannot get in app with a wrong Password. He gets 404 Not found")
-    public void testCannotGetInAppWithWrongPassword(){
+    public void testCannotGetInAppWithWrongPassword() {
         createCourier();
         String pwdKeeper = courier.getPassword();
         courier.setPassword("WrongPwd");
@@ -94,14 +95,14 @@ public void testCannotGetInAppWithoutLogin(){
         responseLogin.then().assertThat()
                 .statusCode(404)
                 .and()
-                .body("message",   equalTo("Учетная запись не найдена"));
+                .body("message", equalTo("Учетная запись не найдена"));
         courier.setPassword(pwdKeeper);
     }
 
     @Test
     @DisplayName("Non-existent courier cannot get in app")
     @Description("Courier cannot get in app with a wrong Password and Login. He gets 404 Not found")
-    public void testNonExistentCourierCannotLogIn(){
+    public void testNonExistentCourierCannotLogIn() {
         createCourier();
         String pwdKeeper = courier.getPassword();
         String loginKeeper = courier.getLogin();
@@ -111,62 +112,13 @@ public void testCannotGetInAppWithoutLogin(){
         responseLogin.then().assertThat()
                 .statusCode(404)
                 .and()
-                .body("message",   equalTo("Учетная запись не найдена"));
+                .body("message", equalTo("Учетная запись не найдена"));
         courier.setPassword(pwdKeeper);
         courier.setLogin(loginKeeper);
     }
-//    public void canNotCreateTwoCouriersWithIdenticalLogins() {
-//        Response responseCreate = createCourier();
-//        responseCreate.then().assertThat()
-//                .statusCode(201)
-//                .and()
-//                .body("ok", equalTo(true));
-//        String pwdKeeper = courier.getPassword();
-//        courier.setPassword("newUnusedPwd");
-//        String firstNameKeeper = courier.getFirstName();
-//        courier.setFirstName("newUnusedName");
-//        responseCreate = createCourier();
-//        responseCreate.then().assertThat()
-//                .statusCode(409)
-//                .and()
-//                .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
-//        courier.setPassword(pwdKeeper);
-//        courier.setFirstName(firstNameKeeper);
-//    }
-//
-//    @Test
-//    @DisplayName("Cannot create courier without login")
-//    @Description("Courier without login can't be created ")
-//    public void canNotCreateCourierWithoutLogin() {
-//
-//        String loginKeeper = courier.getLogin();
-//        courier.setLogin("");
-//
-//        Response responseCreate = createCourier();
-//        responseCreate.then().assertThat()
-//                .statusCode(400)
-//                .and()
-//                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
-//        courier.setLogin(loginKeeper);
-//
-//    }
-//    @Test
-//    @DisplayName("Cannot create courier without password")
-//    @Description("Courier without password can't be created ")
-//    public void canNotCreateCourierWithoutPassword() {
-//
-//        String pwdKeeper = courier.getPassword();
-//        courier.setPassword("");
-//
-//        Response responseCreate = createCourier();
-//        responseCreate.then().assertThat()
-//                .statusCode(400)
-//                .and()
-//                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
-//        courier.setLogin(pwdKeeper);
-//    }
+
     @After
-    @Description()
+    @Description("Deletion of a courier if exists")
     public void deleteTestCourierIfExist() {
         if (courier.isInApp()) {
             loginCourier();
@@ -182,7 +134,6 @@ public void testCannotGetInAppWithoutLogin(){
                 .body(courier.getNewCourierRequestBody())
                 .when()
                 .post(courier.getNewCourierAPIPath());
-        //System.out.println(responseCreate.body().prettyPrint());
         if (responseCreate.getBody().asString().contains("ok")) {
             courier.setInApp(true);
         }
@@ -201,7 +152,7 @@ public void testCannotGetInAppWithoutLogin(){
                         .post(courier.getLoginCourierAPIPath());
         try {
             courierId = responseLogin.jsonPath().getInt("id");
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
         }
         return responseLogin;
     }
@@ -218,6 +169,5 @@ public void testCannotGetInAppWithoutLogin(){
             System.out.println("Курьер не был создан, его невозможно удалить!");
         }
     }
-
 
 }
