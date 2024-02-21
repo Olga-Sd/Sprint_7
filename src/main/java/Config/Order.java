@@ -17,6 +17,74 @@ public class Order {
         return "/api/v1/orders";
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMetroStation() {
+        return metroStation;
+    }
+
+    public void setMetroStation(String metroStation) {
+        this.metroStation = metroStation;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public int getRentTime() {
+        return rentTime;
+    }
+
+    public void setRentTime(int rentTime) {
+        this.rentTime = rentTime;
+    }
+
+    public String getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(String deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getOrderByIdPath(int id){
+        return "/api/v1/orders/track?t="+id;
+    }
+
     public String getFinishOrderPath(int id){
         return "/api/v1/orders/finish/"+id;
     }
@@ -29,15 +97,19 @@ public class Order {
         this.color = color;
     }
 
-    public Order(List<String> color){
-        this.firstName = "Saske";
-        this.lastName = "Uchiha";
-        this.address = "Kanoha 34";
-        this.metroStation = "Kanoha Station";
-        this.phone = "+1234567890";
-        this.rentTime = 4;
-        this.deliveryDate = "12.03.2022";
-        this.comment = "Don't give my scooter to Naruto!";
+    public Order(String firstName, String lastName, String address, String metroStation,
+                 String phone, int rentTime, String deliveryDate, String comment, List<String> color){
+        this.firstName = firstName ;
+        this.lastName = lastName;
+        this.address = address;
+        this.metroStation = metroStation;
+        this.phone = phone;
+        this.rentTime = rentTime;
+        this.deliveryDate = deliveryDate;
+        this.comment = comment;
         this.color = color;
+    }
+    public Order(){
+
     }
 }
