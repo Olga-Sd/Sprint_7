@@ -1,25 +1,24 @@
-import Config.Configuration;
-import Config.Data;
-import Config.Courier;
-import io.restassured.RestAssured;
+import config.*;
+
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.qameta.allure.Description;
-import io.qameta.allure.Step;
+
+import static org.apache.http.HttpStatus.*;
 
 import static io.restassured.RestAssured.*;
 
 public class TestCreateCourier {
     // Данный класс содержит позитивные и негативные проверки эндпойнта POST /api/v1/courier (создание курьера)
     Courier courier;
-    int courierId;
 
     @Before  // Задаем базовый URI и создаем экземпляр класса Courier
     public void createCourierInit() {
@@ -31,9 +30,12 @@ public class TestCreateCourier {
     @DisplayName("Create new courier")
     @Description("A new courier can be created")
     public void testCanCreateNewCourier() {
-        Response responseCreate = createCourier();
+        Response responseCreate = CourierAPI.createCourier(courier);
+        if (responseCreate.getBody().asString().contains("ok")) {
+            courier.setInApp(true);
+        }
         responseCreate.then().assertThat()
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .and()
                 .body("ok", equalTo(true));
     }
@@ -42,14 +44,17 @@ public class TestCreateCourier {
     @DisplayName("Test 2 identical courier")
     @Description("Test that 2 identical couriers can not be created")
     public void testCanNotCreateTwoIdenticalCouriers() {
-        Response responseCreate = createCourier();
+        Response responseCreate = CourierAPI.createCourier(courier);
+        if (responseCreate.getBody().asString().contains("ok")) {
+            courier.setInApp(true);
+        }
         responseCreate.then().assertThat()
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .and()
                 .body("ok", equalTo(true));
-        responseCreate = createCourier();
+        responseCreate = CourierAPI.createCourier(courier);
         responseCreate.then().assertThat()
-                .statusCode(409)
+                .statusCode(SC_CONFLICT)
                 .and()
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
 
@@ -59,18 +64,21 @@ public class TestCreateCourier {
     @DisplayName("Test 2 identical logins")
     @Description("Test that 2 couriers with identical logins can not be created")
     public void testCanNotCreateTwoCouriersWithIdenticalLogins() {
-        Response responseCreate = createCourier();
+        Response responseCreate = CourierAPI.createCourier(courier);
+        if (responseCreate.getBody().asString().contains("ok")) {
+            courier.setInApp(true);
+        }
         responseCreate.then().assertThat()
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .and()
                 .body("ok", equalTo(true));
         String pwdKeeper = courier.getPassword();
         courier.setPassword("newUnusedPwd");
         String firstNameKeeper = courier.getFirstName();
         courier.setFirstName("newUnusedName");
-        responseCreate = createCourier();
+        responseCreate = CourierAPI.createCourier(courier);
         responseCreate.then().assertThat()
-                .statusCode(409)
+                .statusCode(SC_CONFLICT)
                 .and()
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
         courier.setPassword(pwdKeeper);
@@ -85,14 +93,18 @@ public class TestCreateCourier {
         String loginKeeper = courier.getLogin();
         courier.setLogin("");
 
-        Response responseCreate = createCourier();
+        Response responseCreate = CourierAPI.createCourier(courier);
+        if (responseCreate.getBody().asString().contains("ok")) {
+            courier.setInApp(true);
+        }
         responseCreate.then().assertThat()
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
         courier.setLogin(loginKeeper);
 
     }
+
     @Test
     @DisplayName("Cannot create courier without password")
     @Description("Courier without password can't be created ")
@@ -101,62 +113,24 @@ public class TestCreateCourier {
         String pwdKeeper = courier.getPassword();
         courier.setPassword("");
 
-        Response responseCreate = createCourier();
+        Response responseCreate = CourierAPI.createCourier(courier);
+        if (responseCreate.getBody().asString().contains("ok")) {
+            courier.setInApp(true);
+        }
         responseCreate.then().assertThat()
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
         courier.setLogin(pwdKeeper);
     }
+
     @After
     @Description("Deletion of a courier if exists")
     public void deleteTestCourierIfExist() {
-        if (courier.isInApp()) {
-            loginCourier();
-            deleteCourier();
+        if(courier.isInApp()) {
+            CourierAPI.loginCourier(courier);
+            CourierAPI.deleteCourier(courier);
         }
     }
-
-    @Step("Create new courier")
-    public Response createCourier() {
-        Response responseCreate = given()
-                .header(Data.requestHeader)
-                .and()
-                .body(courier.getNewCourierRequestBody())
-                .when()
-                .post(courier.getNewCourierAPIPath());
-        if (responseCreate.getBody().asString().contains("ok")) {
-            courier.setInApp(true);
-        }
-        return responseCreate;
-    }
-
-    @Step("Login courier and get Id")
-    @Description("Courier logining and getting courier's id")
-    public Response loginCourier() {
-        Response responseLogin =
-                given()
-                        .header(Data.requestHeader)
-                        .and()
-                        .body(courier.getLoginCourierRequestBody())
-                        .when()
-                        .post(courier.getLoginCourierAPIPath());
-        courierId = responseLogin.jsonPath().getInt("id");
-        return responseLogin;
-    }
-
-    @Step("Delete courier")
-    public void deleteCourier() {
-        try {
-            given()
-                    .header(Data.requestHeader)
-                    .when()
-                    .delete(courier.getDeleteCourierAPIPath(courierId));
-
-        } catch (NullPointerException e) {
-            System.out.println("Курьер не был создан, его невозможно удалить!");
-        }
-    }
-
 
 }

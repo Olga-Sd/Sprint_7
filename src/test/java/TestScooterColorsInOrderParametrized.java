@@ -1,18 +1,17 @@
-import Config.*;
-import io.restassured.RestAssured;
+import config.*;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import Config.Configuration;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 
+import static org.apache.http.HttpStatus.*;
+
 import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.Response;
-
+import io.restassured.RestAssured;
 import static io.restassured.RestAssured.*;
 
 import java.util.List;
@@ -31,15 +30,15 @@ public class TestScooterColorsInOrderParametrized {
     @Parameterized.Parameters
     public static Object[][] testScooterColorsData() {
         return new Object[][]{
-                {List.of("Black")},
-                {List.of("Gray")},
-                {List.of("Black", "Gray")},
+                {List.of("BLACK")},
+                {List.of("GRAY")},
+                {List.of("BLACK", "GRAY")},
                 {List.of("")}
         };
     }
 
     @Before  // Задаем базовый URI
-    public void createCourierInit() {
+    public void createOrderInit() {
         RestAssured.baseURI = Configuration.URL_QA_SCOOTER;
     }
 
@@ -48,32 +47,32 @@ public class TestScooterColorsInOrderParametrized {
         order = new Order("Saske", "Uchiha","Kanoha 34", "Kanoha Station", "+1234567890",
                 4, "12.03.2022", "Don't give my scooter to Naruto!",this.color);
         Response response = given()
-                .header(Data.requestHeader)
+                .header(Data.REQUEST_HEADER)
                 .and()
                 .body(order)
                 .when()
-                .post(order.getNewOrderPath());
+                .post(OrderAPI.newOrderPath);
         orderId = response.jsonPath().getInt("track");
-        response.then().assertThat().statusCode(201)
+        response.then().assertThat().statusCode(SC_CREATED)
                 .and().body("track",notNullValue());
         response =  given()
-                .header(Data.requestHeader)
+                .header(Data.REQUEST_HEADER)
                 .when()
-                .get(order.getOrderByIdPath(orderId));
+                .get(OrderAPI.getOrderByIdPath(orderId));
         response.then()
-                .statusCode(200)
+                .statusCode(SC_OK)
                 .and()
-                .body("order.color", equalTo(color));
+                .body("order.color", equalTo(this.color));
 
     }
     @After
     public void deleteOrder(){
         try{
             given()
-                    .header(Data.requestHeader)
+                    .header(Data.REQUEST_HEADER)
                     .and()
                     .when()
-                    .post(order.getFinishOrderPath(orderId));
+                    .post(OrderAPI.getFinishOrderPath(orderId));
 
         }catch (NullPointerException e){}
 

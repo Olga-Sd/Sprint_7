@@ -1,4 +1,4 @@
-package Config;
+package config;
 
 import java.util.List;
 
@@ -13,8 +13,20 @@ public class Order {
     String comment;
     List<String> color;
 
-    public String getNewOrderPath(){
-        return "/api/v1/orders";
+    public Order(String firstName, String lastName, String address, String metroStation,
+                 String phone, int rentTime, String deliveryDate, String comment, List<String> color){
+        this.firstName = firstName ;
+        this.lastName = lastName;
+        this.address = address;
+        this.metroStation = metroStation;
+        this.phone = phone;
+        this.rentTime = rentTime;
+        this.deliveryDate = deliveryDate;
+        this.comment = comment;
+        this.color = color;
+    }
+    public Order(){
+
     }
 
     public String getFirstName() {
@@ -81,14 +93,6 @@ public class Order {
         this.comment = comment;
     }
 
-    public String getOrderByIdPath(int id){
-        return "/api/v1/orders/track?t="+id;
-    }
-
-    public String getFinishOrderPath(int id){
-        return "/api/v1/orders/finish/"+id;
-    }
-
     public List<String> getColor() {
         return color;
     }
@@ -97,19 +101,4 @@ public class Order {
         this.color = color;
     }
 
-    public Order(String firstName, String lastName, String address, String metroStation,
-                 String phone, int rentTime, String deliveryDate, String comment, List<String> color){
-        this.firstName = firstName ;
-        this.lastName = lastName;
-        this.address = address;
-        this.metroStation = metroStation;
-        this.phone = phone;
-        this.rentTime = rentTime;
-        this.deliveryDate = deliveryDate;
-        this.comment = comment;
-        this.color = color;
-    }
-    public Order(){
-
-    }
 }
